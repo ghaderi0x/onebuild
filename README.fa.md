@@ -134,14 +134,14 @@ onebuild history        # همه‌ی build های قبلیت رو ببین
 OneBuild یه **GitHub Personal Access Token** ازت می‌خواد. با همین توکنه که
 می‌تونه از طرف تو ریپو بسازه و build رو اجرا کنه.
 
-۱. برو **https://github.com/settings/tokens/new**
-۲. یه اسم بهش بده، مثلاً `onebuild`
-۳. یه expiration انتخاب کن (یا "No expiration" اگه نمی‌خوای دوباره این کار رو تکرار کنی)
-۴. زیر بخش **scopes**، این دوتا رو تیک بزن:
+1. برو **https://github.com/settings/tokens/new**
+2. یه اسم بهش بده، مثلاً `onebuild`
+3. یه expiration انتخاب کن (یا "No expiration" اگه نمی‌خوای دوباره این کار رو تکرار کنی)
+4. زیر بخش **scopes**، این دوتا رو تیک بزن:
    - `repo` (دسترسی کامل به ریپوهای private)
    - `workflow` (آپدیت فایل‌های GitHub Action)
-۵. روی **Generate token** بزن، بعد کپیش کن — گیت‌هاب فقط یه‌بار نشونش می‌ده.
-۶. توی OneBuild پیستش کن.
+5. روی **Generate token** بزن، بعد کپیش کن — گیت‌هاب فقط یه‌بار نشونش می‌ده.
+6. توی OneBuild پیستش کن.
 
 OneBuild این توکن رو رمزنگاری می‌کنه و توی `~/.onebuild/` روی سیستم خودت
 ذخیره می‌کنه. دیگه دفعه‌های بعد ازت نمی‌پرسه. برای حذفش هر وقت خواستی:
@@ -258,10 +258,10 @@ onebuild ios-cert csr
 
 بعدش:
 
-۱. برو **https://developer.apple.com/account/resources/certificates/add**
-۲. گزینه‌ی **Apple Distribution** (یا **iOS Distribution**) رو انتخاب کن
-۳. فایل `.certSigningRequest` که OneBuild ساخته رو آپلود کن
-۴. گواهی‌ای که اپل بهت می‌ده (یه فایل `.cer`) رو دانلود کن
+1. برو **https://developer.apple.com/account/resources/certificates/add**
+2. گزینه‌ی **Apple Distribution** (یا **iOS Distribution**) رو انتخاب کن
+3. فایل `.certSigningRequest` که OneBuild ساخته رو آپلود کن
+4. گواهی‌ای که اپل بهت می‌ده (یه فایل `.cer`) رو دانلود کن
 
 بعد پکیجش کن:
 
