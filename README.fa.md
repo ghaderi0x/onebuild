@@ -29,7 +29,7 @@ GitHub Actions workflow متناسب با پلتفرم‌هایی که انتخ�
 روی سیستم خودت نصب کنی. (اگه `git` از قبل روی سیستمت باشه، خودکار ازش برای
 آپلود سریع‌تر استفاده میشه — ولی اجباری نیست.)
 
-ساخته‌ی **A.M.Ghaderi** · گزارش باگ و مشارکت: https://github.com/ghaderi0x/onebuild
+ساخته شده توسط **A.M.Ghaderi** · گزارش باگ و مشارکت: https://github.com/ghaderi0x/onebuild
 
 ---
 
@@ -62,7 +62,7 @@ GitHub Actions workflow متناسب با پلتفرم‌هایی که انتخ�
 
 ## چرا
 
-توسعه‌دهنده‌های فلاتر روی ویندوز یا لینوکس نمی‌تونن خروجی iOS رو محلی بگیرن،
+توسعه‌دهنده‌های فلاتر روی ویندوز یا لینوکس نمی‌تونن خروجی iOS رو به صورت لوکال بگیرن،
 چون Xcode فقط روی macOS نصب میشه. خرید یه مک فقط برای همین کار، برای خیلی از
 توسعه‌دهنده‌های مستقل و تیم‌های کوچیک یه مانع واقعیه. OneBuild این مشکل رو با
 استفاده از runner های macOS خود گیت‌هاب (که Actions به‌صورت رایگان و در حد
@@ -226,20 +226,20 @@ onebuild build
 
 | Secret | چطور بسازیش |
 |---|---|
-| `IOS_CERTIFICATE_BASE64` | بخش [گرفتن گواهی iOS بدون مک](#گرفتن-گواهی-ios-بدون-مک) رو ببین. |
-| `IOS_CERTIFICATE_PASSWORD` | همون پسوردی که موقع اجرای `onebuild ios-cert package` انتخاب می‌کنی. |
-| `IOS_PROVISIONING_PROFILE_BASE64` | فایل `.mobileprovision` رو از **https://developer.apple.com/account/resources/profiles/list** دانلود کن، بعد `onebuild ios-cert encode path/to/profile.mobileprovision` رو بزن. |
-| `KEYCHAIN_PASSWORD` | هر پسوردی که خودت بسازی — فقط برای محافظت از یه keychain موقتی توی CI استفاده میشه، جای دیگه‌ای کاربرد نداره. |
+| `IOS_CERTIFICATE_BASE64` | ‏بخش [گرفتن گواهی iOS بدون مک](#گرفتن-گواهی-ios-بدون-مک) رو ببین. |
+| `IOS_CERTIFICATE_PASSWORD` | ‏همون پسوردی که موقع اجرای `onebuild ios-cert package` انتخاب می‌کنی. |
+| `IOS_PROVISIONING_PROFILE_BASE64` | ‏فایل `.mobileprovision` رو از **https://developer.apple.com/account/resources/profiles/list** دانلود کن، بعد `onebuild ios-cert encode path/to/profile.mobileprovision` رو بزن. |
+| `KEYCHAIN_PASSWORD` | ‏هر پسوردی که خودت بسازی — فقط برای محافظت از یه keychain موقتی توی CI استفاده میشه، جای دیگه‌ای کاربرد نداره. |
 
 بعد از اضافه کردن secret ها، برگرد به OneBuild و گزینه‌ی **«اضافه‌شون کردم،
 دوباره چک کن»** رو بزن. می‌تونی همچنین target iOS signed رو رد کنی و با
 بقیه‌ی خروجی‌ها ادامه بدی، یا کل build رو کنسل کنی.
 
-> target iOS unsigned به هیچ‌کدوم از این‌ها نیاز نداره، اصلاً اکانت اپل هم
-> لازم نیست — ولی `.ipa` نهایی **مستقیم روی گوشی نصب نمیشه**. باید بعداً با
-> ابزاری مثل AltStore، Sideloadly یا TrollStore دوباره امضاش کنی — این
-> محدودیت ذاتی خروجی‌های iOS بدون امضاست، نه چیزی که OneBuild بتونه دورش
-> بزنه.
+>‏ target iOS unsigned به هیچ‌کدوم از این‌ها نیاز نداره، اصلاً اکانت اپل هم
+>‏ لازم نیست — ولی `.ipa` نهایی **مستقیم روی گوشی نصب نمیشه**. باید بعداً با
+>‏ ابزاری مثل AltStore، Sideloadly یا TrollStore دوباره امضاش کنی — این
+>‏ محدودیت ذاتی خروجی‌های iOS بدون امضاست، نه چیزی که OneBuild بتونه دورش
+>‏ بزنه.
 
 ### گرفتن گواهی iOS بدون مک
 
@@ -291,8 +291,8 @@ onebuild ios-cert encode path/to/profile.mobileprovision
 
 ### ۶. رصد کردن build
 
-بعد از آپلود و commit شدن workflow، OneBuild خودش run مربوطه رو روی GitHub
-Actions پیدا می‌کنه و منتظرش می‌مونه، با نمایش زنده‌ی وضعیت و زمان سپری‌شده:
+‏ بعد از آپلود و commit شدن workflow، OneBuild خودش run مربوطه رو روی GitHub
+‏Actions پیدا می‌کنه و منتظرش می‌مونه، با نمایش زنده‌ی وضعیت و زمان سپری‌شده:
 
 ```
   ✔ Workflow started: https://github.com/you/your-repo/actions/runs/123456
@@ -335,7 +335,7 @@ build های چندپلتفرمی می‌تونن از چند دقیقه (فقط
   API میان، یعنی دقیق‌ان، نه حدس،
 - خط‌های آخر لاگ خام همون job، مستقیم توی ترمینالت.
 
-OneBuild **عمداً** سعی نمی‌کنه دلیل خطا رو حدس بزنه یا راه‌حل پیشنهاد بده —
+‏ OneBuild **عمداً** سعی نمی‌کنه دلیل خطا رو حدس بزنه یا راه‌حل پیشنهاد بده —
 خطاهای build خیلی متنوع و وابسته به context هستن که یه تطبیق ساده‌ی کلمه‌ای
 بتونه قابل‌اعتماد تشخیصشون بده، و یه حدس غلط بدتر از هیچ‌حدسیه. لاگ واقعی رو
 بهت می‌ده؛ خودت (یا یه جستجوی ساده، یا پیام خطای خود Flutter/Gradle/Xcode)
@@ -493,6 +493,6 @@ Gradle هنوز بین اجراهای جدا کش نمیشه.
 
 ## لایسنس
 
-MIT — به [LICENSE](LICENSE) نگاه کن.
+‏MIT — به [LICENSE](LICENSE) نگاه کن.
 
-ساخته‌ی **A.M.Ghaderi**.
+ساخته شده توسط **A.M.Ghaderi**.
