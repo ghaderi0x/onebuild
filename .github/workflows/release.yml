@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Build all platforms
+        run: |
+          mkdir -p dist
+          GOOS=darwin  GOARCH=amd64 CGO_ENABLED=0 go build -o dist/onebuild-macos-intel .
+          GOOS=darwin  GOARCH=arm64 CGO_ENABLED=0 go build -o dist/onebuild-macos-arm64 .
+          GOOS=linux   GOARCH=amd64 CGO_ENABLED=0 go build -o dist/onebuild-linux-amd64 .
+          GOOS=linux   GOARCH=arm64 CGO_ENABLED=0 go build -o dist/onebuild-linux-arm64 .
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o dist/onebuild-windows-amd64.exe .
+
+      - name: Checksums
+        run: |
+          cd dist
+          shasum -a 256 * > checksums.txt
+          cat checksums.txt
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" dist/* \
+            --title "OneBuild ${{ github.ref_name }}" \
+            --generate-notes
