@@ -220,6 +220,9 @@ Unblock-File -Path ".\onebuild.exe"
 ```powershell
 [Environment]::SetEnvironmentVariable("Path", "$env:Path;$env:USERPROFILE\Tools\OneBuild", "User")
 ```
+```powershell
+$env:Path = [Environment]::GetEnvironmentVariable("Path", "User")
+```
 
 <div dir="rtl" align="right">
 
