@@ -202,6 +202,9 @@ don't mix steps from both sections.
    ```powershell
    [Environment]::SetEnvironmentVariable("Path", "$env:Path;$env:USERPROFILE\Tools\OneBuild", "User")
    ```
+   ```powershell
+   $env:Path = [Environment]::GetEnvironmentVariable("Path", "User")
+   ```
 
 7. **Close this PowerShell window and open a brand-new one** (the PATH
    change only applies to new windows), then confirm:
