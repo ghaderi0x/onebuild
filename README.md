@@ -12,7 +12,7 @@ questions; OneBuild does the rest.
 [![Go Report](https://img.shields.io/badge/Go-1.21%2B-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![License: MIT](https://img.shields.io/github/license/ghaderi0x/onebuild)](LICENSE)
 [![Latest release](https://img.shields.io/github/v/release/ghaderi0x/onebuild?include_prereleases)](https://github.com/ghaderi0x/onebuild/releases/latest)
-[![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-informational)](#-install)
+[![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-informational)](#-download--run-recommended--no-go-needed)
 [![Zero dependencies](https://img.shields.io/badge/dependencies-stdlib%20only-brightgreen)](#-why-onebuild)
 
 **[English](README.md) · [فارسی](README.fa.md)**
@@ -38,10 +38,12 @@ questions; OneBuild does the rest.
 - [Why OneBuild](#-why-onebuild)
 - [How it works](#-how-it-works)
 - [Requirements](#-requirements)
-- [Install](#-install)
-  - [Windows (PowerShell)](#windows-powershell)
+- [Download & run (recommended)](#-download--run-recommended--no-go-needed)
+  - [Windows (PowerShell) — step by step](#windows-powershell--step-by-step)
   - [macOS / Linux](#macos--linux)
-  - [Build from source](#build-from-source)
+- [Build from source (for Go developers)](#-build-from-source-for-go-developers)
+  - [Windows (PowerShell) — step by step](#windows-powershell--step-by-step-1)
+  - [macOS / Linux](#macos--linux-1)
 - [Quick start](#-quick-start)
 - [Step-by-step guide](#-step-by-step-guide)
   - [1. Create a GitHub token](#1-create-a-github-token)
@@ -145,46 +147,75 @@ nothing to trust but your own GitHub account.
 
 ---
 
-## 📦 Install
+## 📦 Download & run (recommended — no Go needed)
 
-### Windows (PowerShell)
+This is the fastest path: grab a ready-made binary and run it. **You do
+not need Go, Git, Flutter, or anything else installed for this option.**
+If you'd rather compile OneBuild yourself, skip ahead to
+[🛠️ Build from source](#-build-from-source-for-go-developers) instead —
+don't mix steps from both sections.
 
-Download the Windows binary from the **[latest release](https://github.com/ghaderi0x/onebuild/releases/latest)**, then from a PowerShell prompt in the folder you downloaded it to:
+### Windows (PowerShell) — step by step
 
-```powershell
-# Run it directly
-.\onebuild-windows-amd64.exe version
+1. **Open PowerShell.** Click the Start menu, type `PowerShell`, and press
+   Enter (the regular blue "Windows PowerShell" is fine — you don't need
+   to run it as Administrator for any of this).
 
-# Optional: rename it and move it somewhere on your PATH
-Rename-Item .\onebuild-windows-amd64.exe onebuild.exe
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\bin" | Out-Null
-Move-Item .\onebuild.exe "$env:USERPROFILE\bin\onebuild.exe"
+2. **Create a folder for OneBuild and move into it.** Copy-paste this
+   whole block as one piece — it creates `C:\Tools\OneBuild` and switches
+   into it:
 
-# Add that folder to your PATH for this session
-$env:Path += ";$env:USERPROFILE\bin"
+   ```powershell
+   New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\Tools\OneBuild" | Out-Null
+   Set-Location "$env:USERPROFILE\Tools\OneBuild"
+   ```
 
-# ...or permanently, for your user account
-[Environment]::SetEnvironmentVariable(
-    "Path",
-    "$env:Path;$env:USERPROFILE\bin",
-    "User"
-)
-```
+3. **Download the latest Windows build.** This URL always points at the
+   newest release, so you never have to look up a version number:
 
-Close and reopen PowerShell, then confirm it's on your `PATH`:
+   ```powershell
+   Invoke-WebRequest -Uri "https://github.com/ghaderi0x/onebuild/releases/latest/download/onebuild-windows-amd64.exe" -OutFile "onebuild.exe"
+   ```
 
-```powershell
-onebuild version
-```
+4. **Unblock the file.** Windows marks anything downloaded from the
+   internet as "untrusted" by default — this one command clears that flag
+   so PowerShell won't nag you every time you run it:
 
-> If Windows SmartScreen warns that the file is from an unknown publisher
-> (the binary isn't code-signed), click **More info → Run anyway**. This
-> is expected for an open-source CLI without a paid code-signing
-> certificate.
+   ```powershell
+   Unblock-File -Path ".\onebuild.exe"
+   ```
+
+5. **Test that it works:**
+
+   ```powershell
+   .\onebuild.exe version
+   ```
+
+   You should see a version number printed. If instead you see a blue
+   **"Windows protected your PC"** SmartScreen popup, click **More info**,
+   then **Run anyway** — this is expected for an open-source tool without
+   a paid code-signing certificate, and you only have to do it once.
+
+6. **(Recommended) Add OneBuild to your PATH**, so you can type `onebuild`
+   from any folder instead of the full path every time:
+
+   ```powershell
+   [Environment]::SetEnvironmentVariable("Path", "$env:Path;$env:USERPROFILE\Tools\OneBuild", "User")
+   ```
+
+7. **Close this PowerShell window and open a brand-new one** (the PATH
+   change only applies to new windows), then confirm:
+
+   ```powershell
+   onebuild version
+   ```
+
+   If that prints a version number, you're done — jump to
+   [🚀 Quick start](#-quick-start).
 
 ### macOS / Linux
 
-Download the file for your platform from the **[latest release](https://github.com/ghaderi0x/onebuild/releases/latest)**:
+Download the file that matches your machine:
 
 | Platform              | File                          |
 | ---------------------- | ------------------------------ |
@@ -193,37 +224,107 @@ Download the file for your platform from the **[latest release](https://github.c
 | Linux (x86_64)         | `onebuild-linux-amd64`         |
 | Linux (arm64)          | `onebuild-linux-arm64`         |
 
+Copy-paste the block for your platform as one piece (it downloads,
+makes the file executable, and tests it in one go — just swap the
+filename if yours is different from the example):
+
 ```bash
-chmod +x onebuild-*
-./onebuild-* version
+curl -L -o onebuild "https://github.com/ghaderi0x/onebuild/releases/latest/download/onebuild-linux-amd64"
+chmod +x onebuild
+./onebuild version
 ```
 
-On macOS you may need to allow it once under **System Settings → Privacy &
-Security → "Allow Anyway"**, since it isn't notarized.
+```bash
+# macOS (Apple Silicon) example
+curl -L -o onebuild "https://github.com/ghaderi0x/onebuild/releases/latest/download/onebuild-macos-arm64"
+chmod +x onebuild
+./onebuild version
+```
 
-### Build from source
+On macOS, if you see a warning that the file can't be opened because it's
+from an unidentified developer, go to **System Settings → Privacy &
+Security**, scroll down, and click **"Allow Anyway"** next to the OneBuild
+warning — then run `./onebuild version` again.
 
-Needs [Go 1.21+](https://go.dev/dl/) installed just for this one step.
+Optional — move it onto your `PATH` so you can run `onebuild` from
+anywhere:
 
-**PowerShell:**
+```bash
+sudo mv onebuild /usr/local/bin/onebuild
+onebuild version
+```
+
+---
+
+## 🛠️ Build from source (for Go developers)
+
+Only follow this section if you specifically want to **compile OneBuild
+yourself with Go** — for example, to try an unreleased change or to
+audit the code before running it. Most people should use
+[📦 Download & run](#-download--run-recommended--no-go-needed) above
+instead; don't combine steps from both sections.
+
+**Prerequisite:** [Go 1.21+](https://go.dev/dl/) and
+[Git](https://git-scm.com/downloads) installed on your machine. Check
+you already have them:
 
 ```powershell
-git clone https://github.com/ghaderi0x/onebuild
-cd onebuild
-go build -o onebuild.exe .
+go version
+git --version
 ```
 
-**macOS / Linux:**
+### Windows (PowerShell) — step by step
+
+1. **Open PowerShell** (Start menu → type `PowerShell` → Enter).
+
+2. **Choose a folder to work in and clone the repository** — copy-paste
+   this whole block as one piece:
+
+   ```powershell
+   New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\Projects" | Out-Null
+   Set-Location "$env:USERPROFILE\Projects"
+   git clone https://github.com/ghaderi0x/onebuild
+   Set-Location onebuild
+   ```
+
+3. **Build the binary:**
+
+   ```powershell
+   go build -o onebuild.exe .
+   ```
+
+   This creates `onebuild.exe` right inside that `onebuild` folder — the
+   build itself usually takes just a few seconds.
+
+4. **Test it:**
+
+   ```powershell
+   .\onebuild.exe version
+   ```
+
+5. **(Recommended) Add it to your PATH** so you can run `onebuild` from
+   anywhere, the same way as the downloaded binary above:
+
+   ```powershell
+   [Environment]::SetEnvironmentVariable("Path", "$env:Path;$env:USERPROFILE\Projects\onebuild", "User")
+   ```
+
+   Close and reopen PowerShell, then confirm with `onebuild version`.
+
+### macOS / Linux
 
 ```bash
 git clone https://github.com/ghaderi0x/onebuild
 cd onebuild
 go build -o onebuild .
+./onebuild version
 ```
 
-Either way you get a single self-contained binary — move it anywhere,
-including a folder on your `PATH`, so you can run `onebuild` from any
-directory.
+Optionally move it onto your `PATH`:
+
+```bash
+sudo mv onebuild /usr/local/bin/onebuild
+```
 
 ---
 
