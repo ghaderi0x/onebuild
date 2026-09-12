@@ -1,45 +1,49 @@
 <div align="center">
 
-# OneBuild
+# ⚡ OneBuild
 
-**Build your Flutter app's Android, iOS, Web, Windows, Linux and macOS
-outputs from any computer — no Mac required for iOS.**
+**Build your Flutter app for Android, iOS, Web, Windows, Linux and macOS —
+from any computer, with no Mac required for iOS.**
+
+OneBuild is a zero-dependency CLI that turns GitHub Actions (including real
+hosted macOS runners) into your personal build farm. You answer a few
+questions; OneBuild does the rest.
 
 [![Go Report](https://img.shields.io/badge/Go-1.21%2B-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![License: MIT](https://img.shields.io/github/license/ghaderi0x/onebuild)](LICENSE)
 [![Latest release](https://img.shields.io/github/v/release/ghaderi0x/onebuild?include_prereleases)](https://github.com/ghaderi0x/onebuild/releases/latest)
-[![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-informational)](#install)
-[![Zero dependencies](https://img.shields.io/badge/dependencies-stdlib%20only-brightgreen)](#why)
+[![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-informational)](#-install)
+[![Zero dependencies](https://img.shields.io/badge/dependencies-stdlib%20only-brightgreen)](#-why-onebuild)
 
 **[English](README.md) · [فارسی](README.fa.md)**
 
 </div>
 
----
+<br>
 
-OneBuild uploads your project to a GitHub repository (yours, on your own
-account), generates a GitHub Actions workflow tailored to the platforms you
-picked, triggers the build, waits for it, downloads the resulting artifacts,
-and keeps a local history of everything you've built. All the actual
-compiling happens on GitHub's own runners (including real macOS runners for
-iOS) — OneBuild is just the remote control.
+<div align="center">
 
-Written in Go using only the standard library. The compiled binary is all
-you need — no Flutter, no Xcode, and no extra runtime has to be installed
-on your machine to run OneBuild itself. (git is used automatically if it's
-already on your system, purely as a faster upload path — it's not required.)
+<!-- 🎬 Replace this line with your demo GIF -->
+<!-- Example: ![OneBuild demo](docs/demo.gif) -->
+<img src="docs/demo.gif" alt="OneBuild demo — from flutter project to APK/IPA in a few prompts" width="720">
 
-Made by **A.M.Ghaderi** · issues & PRs: https://github.com/ghaderi0x/onebuild
+</div>
+
+<br>
 
 ---
 
-## Table of contents
+## 📚 Table of contents
 
-- [Why](#why)
-- [Requirements](#requirements)
-- [Install](#install)
-- [Quick start](#quick-start)
-- [Step-by-step guide](#step-by-step-guide)
+- [Why OneBuild](#-why-onebuild)
+- [How it works](#-how-it-works)
+- [Requirements](#-requirements)
+- [Install](#-install)
+  - [Windows (PowerShell)](#windows-powershell)
+  - [macOS / Linux](#macos--linux)
+  - [Build from source](#build-from-source)
+- [Quick start](#-quick-start)
+- [Step-by-step guide](#-step-by-step-guide)
   - [1. Create a GitHub token](#1-create-a-github-token)
   - [2. Run the build wizard](#2-run-the-build-wizard)
   - [3. Pick your project source](#3-pick-your-project-source)
@@ -49,62 +53,167 @@ Made by **A.M.Ghaderi** · issues & PRs: https://github.com/ghaderi0x/onebuild
   - [6. Watching the build](#6-watching-the-build)
   - [7. Getting your files](#7-getting-your-files)
   - [8. When a build fails](#8-when-a-build-fails)
-- [The `history` command](#the-history-command)
-- [The `doctor` command](#the-doctor-command)
-- [Keeping OneBuild up to date](#keeping-onebuild-up-to-date)
-- [All commands](#all-commands)
-- [Where things are stored on your machine](#where-things-are-stored-on-your-machine)
-- [FAQ / Troubleshooting](#faq--troubleshooting)
-- [Extending to other frameworks](#extending-to-other-frameworks)
-- [License](#license)
+- [The `history` command](#-the-history-command)
+- [The `doctor` command](#-the-doctor-command)
+- [Keeping OneBuild up to date](#-keeping-onebuild-up-to-date)
+- [All commands](#-all-commands)
+- [Where things are stored](#-where-things-are-stored-on-your-machine)
+- [FAQ / Troubleshooting](#-faq--troubleshooting)
+- [Extending to other frameworks](#-extending-to-other-frameworks)
+- [License](#-license)
 
 ---
 
-## Why
+## 🤔 Why OneBuild
 
-Flutter developers on Windows or Linux can't produce an iOS build locally,
-since Xcode only runs on macOS. Buying a Mac just to ship iOS builds is a
-real barrier for a lot of solo developers and small teams. OneBuild works
-around this by letting GitHub's hosted macOS runners (which Actions gives
-you access to for free, within GitHub's usage limits) do the iOS build for
-you — along with every other platform Flutter supports, from the same
-command.
+Flutter developers on Windows or Linux can't produce an iOS build locally —
+Xcode only runs on macOS. Buying a Mac just to ship iOS builds is a real
+barrier for solo developers and small teams.
 
-## Requirements
+OneBuild works around this by letting **GitHub's hosted macOS runners**
+(free within GitHub's usage limits) build your iOS app for you — along with
+every other platform Flutter supports, triggered from a single command on
+your own machine.
 
-- A GitHub account (free tier works — Actions minutes may be limited on the
-  free plan, see [FAQ](#faq--troubleshooting)).
-- Nothing else. OneBuild does **not** need Flutter, Xcode, Android Studio,
-  or git installed locally to run — it only needs those to exist on the
+|                         | Without OneBuild        | With OneBuild                     |
+| ----------------------- | ------------------------ | ---------------------------------- |
+| Build iOS on Windows/Linux | ❌ Not possible            | ✅ Yes, via macOS Actions runners |
+| Local toolchain needed   | Flutter + Xcode + Android Studio | ❌ None — GitHub runners have it all |
+| Multi-platform build     | Manual, one at a time    | ✅ All targets in parallel         |
+| Cost                     | A Mac (~$1000+)          | Free GitHub Actions minutes        |
+
+---
+
+## ⚙️ How it works
+
+OneBuild never compiles anything on your machine. It's a thin, secure
+remote control for GitHub Actions: it pushes your code, writes the workflow,
+triggers the run, and brings the finished artifacts back to you.
+
+```mermaid
+flowchart LR
+    A["💻 Your computer<br/>Flutter project"] -->|"1 · onebuild build"| B["🧙 OneBuild CLI<br/>wizard asks a few questions"]
+    B -->|"2 · push code +<br/>generate workflow"| C["📦 GitHub Repository<br/>(yours)"]
+    C -->|"3 · triggers"| D["⚙️ GitHub Actions"]
+
+    D --> E["🤖 Ubuntu runner<br/>Android · Web · Linux"]
+    D --> F["🍎 macOS runner<br/>iOS · macOS"]
+    D --> G["🪟 Windows runner<br/>Windows desktop"]
+
+    E -->|"4 · build artifacts"| H["☁️ Actions artifacts"]
+    F -->|"4 · build artifacts"| H
+    G -->|"4 · build artifacts"| H
+
+    H -->|"5 · downloaded automatically"| I["📁 ~/OneBuild-output/<br/>.apk · .ipa · .exe · .app ..."]
+
+    style A fill:#1e2327,stroke:#4a5568,color:#fff
+    style B fill:#00ADD8,stroke:#00ADD8,color:#fff
+    style C fill:#24292f,stroke:#4a5568,color:#fff
+    style D fill:#2b3137,stroke:#4a5568,color:#fff
+    style E fill:#0d1117,stroke:#4a5568,color:#fff
+    style F fill:#0d1117,stroke:#4a5568,color:#fff
+    style G fill:#0d1117,stroke:#4a5568,color:#fff
+    style H fill:#2b3137,stroke:#4a5568,color:#fff
+    style I fill:#1e2327,stroke:#00ADD8,color:#00e0ff
+```
+
+1. **You run `onebuild build`** — a short interactive wizard asks where
+   your project is and which platforms you want.
+2. **OneBuild pushes your code** to a GitHub repository (yours) and drops
+   in a `.github/workflows/onebuild.yml` tailored to the targets you chose.
+3. **GitHub Actions takes over** — one job per platform, all running in
+   parallel on GitHub's own hosted runners (Ubuntu, macOS, Windows).
+4. **Each runner builds your app** with the real Flutter/Xcode/Gradle
+   toolchain and uploads the result as a build artifact.
+5. **OneBuild waits, then downloads everything** into a timestamped folder
+   on your machine — no manual clicking through the Actions UI.
+
+Everything that touches your Apple credentials, GitHub token, and signing
+material stays either on your machine (encrypted) or inside GitHub's own
+encrypted Actions secrets — OneBuild's own servers don't exist; there's
+nothing to trust but your own GitHub account.
+
+---
+
+## ✅ Requirements
+
+- A **GitHub account** (free tier works — Actions minutes may be limited,
+  see [FAQ](#-faq--troubleshooting)).
+- **Nothing else.** OneBuild does **not** need Flutter, Xcode, Android
+  Studio, or even git installed locally — it only needs those on the
   GitHub Actions runner, which GitHub already provides.
 
-## Install
+---
 
-**Option A — download a binary (recommended, no Go needed)**
+## 📦 Install
 
-Grab the file for your platform from the
-**[latest release](https://github.com/ghaderi0x/onebuild/releases/latest)**:
+### Windows (PowerShell)
 
-| Platform | File |
-|---|---|
-| macOS (Apple Silicon) | `onebuild-macos-arm64` |
-| macOS (Intel) | `onebuild-macos-intel` |
-| Linux (x86_64) | `onebuild-linux-amd64` |
-| Linux (arm64) | `onebuild-linux-arm64` |
-| Windows | `onebuild-windows-amd64.exe` |
+Download the Windows binary from the **[latest release](https://github.com/ghaderi0x/onebuild/releases/latest)**, then from a PowerShell prompt in the folder you downloaded it to:
 
-macOS/Linux:
+```powershell
+# Run it directly
+.\onebuild-windows-amd64.exe version
+
+# Optional: rename it and move it somewhere on your PATH
+Rename-Item .\onebuild-windows-amd64.exe onebuild.exe
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\bin" | Out-Null
+Move-Item .\onebuild.exe "$env:USERPROFILE\bin\onebuild.exe"
+
+# Add that folder to your PATH for this session
+$env:Path += ";$env:USERPROFILE\bin"
+
+# ...or permanently, for your user account
+[Environment]::SetEnvironmentVariable(
+    "Path",
+    "$env:Path;$env:USERPROFILE\bin",
+    "User"
+)
+```
+
+Close and reopen PowerShell, then confirm it's on your `PATH`:
+
+```powershell
+onebuild version
+```
+
+> If Windows SmartScreen warns that the file is from an unknown publisher
+> (the binary isn't code-signed), click **More info → Run anyway**. This
+> is expected for an open-source CLI without a paid code-signing
+> certificate.
+
+### macOS / Linux
+
+Download the file for your platform from the **[latest release](https://github.com/ghaderi0x/onebuild/releases/latest)**:
+
+| Platform              | File                          |
+| ---------------------- | ------------------------------ |
+| macOS (Apple Silicon)  | `onebuild-macos-arm64`         |
+| macOS (Intel)          | `onebuild-macos-intel`         |
+| Linux (x86_64)         | `onebuild-linux-amd64`         |
+| Linux (arm64)          | `onebuild-linux-arm64`         |
+
 ```bash
 chmod +x onebuild-*
 ./onebuild-* version
 ```
+
 On macOS you may need to allow it once under **System Settings → Privacy &
 Security → "Allow Anyway"**, since it isn't notarized.
 
-Windows: just run the `.exe` from PowerShell or a terminal.
+### Build from source
 
-**Option B — build it yourself** (needs Go 1.21+ installed just for this
-one step):
+Needs [Go 1.21+](https://go.dev/dl/) installed just for this one step.
+
+**PowerShell:**
+
+```powershell
+git clone https://github.com/ghaderi0x/onebuild
+cd onebuild
+go build -o onebuild.exe .
+```
+
+**macOS / Linux:**
 
 ```bash
 git clone https://github.com/ghaderi0x/onebuild
@@ -112,35 +221,35 @@ cd onebuild
 go build -o onebuild .
 ```
 
-Either way, you get a single self-contained file — move it anywhere you
-like, including a folder on your `PATH` so you can run `onebuild` from
-anywhere without typing the full path.
+Either way you get a single self-contained binary — move it anywhere,
+including a folder on your `PATH`, so you can run `onebuild` from any
+directory.
 
-## Quick start
+---
 
-```bash
+## 🚀 Quick start
+
+```powershell
 onebuild auth login     # one-time: paste a GitHub token
-onebuild build          # answer a few questions, get your builds
-onebuild history        # see everything you've built before
+onebuild build           # answer a few questions, get your builds
+onebuild history          # see everything you've built before
 ```
 
 That's the whole workflow. Everything below explains each step in detail.
 
 ---
 
-## Step-by-step guide
+## 📖 Step-by-step guide
 
 ### 1. Create a GitHub token
 
-The first time you run `onebuild build` (or if you run `onebuild auth
-login` directly), OneBuild will ask for a **GitHub Personal Access
-Token**. This is how it creates repositories and starts builds on your
-behalf.
+The first time you run `onebuild build` (or `onebuild auth login`
+directly), OneBuild asks for a **GitHub Personal Access Token** — this is
+how it creates repositories and starts builds on your behalf.
 
 1. Go to **https://github.com/settings/tokens/new**
 2. Give it any name, e.g. `onebuild`.
-3. Set an expiration you're comfortable with (or "No expiration" if you'd
-   rather not repeat this step later).
+3. Set an expiration you're comfortable with (or "No expiration").
 4. Under **scopes**, check:
    - `repo` (full control of private repositories)
    - `workflow` (update GitHub Action workflows)
@@ -148,33 +257,36 @@ behalf.
 6. Paste it into OneBuild when asked.
 
 OneBuild encrypts this token and stores it in `~/.onebuild/` on your own
-machine. You won't be asked again on future runs. To remove it at any
-time, run `onebuild logout`.
+machine (on Windows this is `%USERPROFILE%\.onebuild\`). You won't be
+asked again on future runs. To remove it at any time:
+
+```powershell
+onebuild logout
+```
 
 > Prefer a fine-grained token instead of a classic one? That works too, as
-> long as it has read/write access to Contents, Actions, and Secrets, and
-> is allowed to create new repositories (fine-grained tokens need
-> "All repositories" access with Administration: write for that last
-> part). Classic tokens with `repo` + `workflow` are simpler and are what
-> the prompts above assume.
+> long as it has read/write access to **Contents**, **Actions**, and
+> **Secrets**, and is allowed to create new repositories (fine-grained
+> tokens need "All repositories" access with **Administration: write**
+> for that last part). Classic tokens with `repo` + `workflow` are
+> simpler and are what the steps above assume.
 
 ### 2. Run the build wizard
 
-```bash
+```powershell
 onebuild build
 ```
 
-You'll see the OneBuild banner, then a short series of questions. Example
-of what the first part looks like:
+You'll see the OneBuild banner, then a short series of questions:
 
 ```
-  ? Where is your Flutter project?
-      1) A local folder on this computer
-      2) An existing GitHub repository (already pushed)
-  > Enter number: 1
+? Where is your Flutter project?
+    1) A local folder on this computer
+    2) An existing GitHub repository (already pushed)
+> Enter number: 1
 
-  ? Path to your Flutter project folder [.]: ~/projects/my_app
-  ? App name (used for labels and history) [my_app]: My App
+? Path to your Flutter project folder [.]: C:\Users\you\projects\my_app
+? App name (used for labels and history) [my_app]: My App
 ```
 
 ### 3. Pick your project source
@@ -184,9 +296,9 @@ of what the first part looks like:
   - create a new GitHub repository for you (you choose the name and
     whether it's private or public),
   - add a `.github/workflows/onebuild.yml` file to your project,
-  - upload everything (skipping `build/`, `.dart_tool/`, `Pods/`,
+  - upload everything, skipping `build/`, `.dart_tool/`, `Pods/`,
     `.gradle/`, `node_modules/`, and similar folders that don't belong in
-    version control).
+    version control.
 - **Existing GitHub repository** — if your project is already pushed to
   GitHub, just give OneBuild the URL (or `owner/repo`). It won't touch
   your files; it only adds/updates the workflow file and triggers a run.
@@ -194,71 +306,69 @@ of what the first part looks like:
 ### 4. Pick your build targets
 
 ```
-  ? Which outputs do you want to build? (comma separated numbers, e.g. 1,3)
-      1) Android (.apk)
-      2) Android App Bundle (.aab)
-      3) iOS - unsigned build (.ipa, needs resigning)
-      4) iOS - signed with your certificate (.ipa)
-      5) Web
-      6) Windows desktop
-      7) Linux desktop
-      8) macOS desktop
-  > Enter numbers: 1,4,5
+? Which outputs do you want to build? (comma separated numbers, e.g. 1,3)
+    1) Android (.apk)
+    2) Android App Bundle (.aab)
+    3) iOS - unsigned build (.ipa, needs resigning)
+    4) iOS - signed with your certificate (.ipa)
+    5) Web
+    6) Windows desktop
+    7) Linux desktop
+    8) macOS desktop
+> Enter numbers: 1,4,5
 ```
 
-You can pick as many as you want in one run — each becomes its own job in
-the generated workflow, and they all build in parallel on GitHub's side.
+Pick as many as you want in one run — each becomes its own job in the
+generated workflow, and they all build **in parallel** on GitHub's side.
 
 ### 5. Signed iOS builds (optional)
 
 If you selected the **signed iOS** target, OneBuild first asks for your
-Apple **Team ID** and the export method (`ad-hoc`, `app-store`,
-`development`, or `enterprise`).
+Apple **Team ID** and export method (`ad-hoc`, `app-store`, `development`,
+or `enterprise`).
 
-Then it checks whether your repository already has four required GitHub
-Actions secrets, and if any are missing, it prints exactly what to add and
-where:
+It then checks whether your repository already has the four required
+GitHub Actions secrets, and prints exactly what's missing:
 
 ```
-  ⚠ This repository is missing 4 required secret(s) for signed iOS builds:
-     - IOS_CERTIFICATE_BASE64
-     - IOS_CERTIFICATE_PASSWORD
-     - IOS_PROVISIONING_PROFILE_BASE64
-     - KEYCHAIN_PASSWORD
+⚠ This repository is missing 4 required secret(s) for signed iOS builds:
+   - IOS_CERTIFICATE_BASE64
+   - IOS_CERTIFICATE_PASSWORD
+   - IOS_PROVISIONING_PROFILE_BASE64
+   - KEYCHAIN_PASSWORD
 
-  Add them at:
-  https://github.com/you/your-repo/settings/secrets/actions/new
+Add them at:
+https://github.com/you/your-repo/settings/secrets/actions/new
 ```
 
 How to get each value:
 
-| Secret | How to get it |
-|---|---|
-| `IOS_CERTIFICATE_BASE64` | See [Getting a certificate without a Mac](#getting-a-certificate-without-a-mac) below. |
-| `IOS_CERTIFICATE_PASSWORD` | The password you choose while running `onebuild ios-cert package`. |
-| `IOS_PROVISIONING_PROFILE_BASE64` | Download the matching `.mobileprovision` file from **https://developer.apple.com/account/resources/profiles/list**, then run `onebuild ios-cert encode path/to/profile.mobileprovision`. |
-| `KEYCHAIN_PASSWORD` | Any password you make up — it's only used to protect a temporary keychain created during the CI run, and is never used anywhere else. |
+| Secret                              | How to get it                                                                                                                                       |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `IOS_CERTIFICATE_BASE64`             | See [Getting a certificate without a Mac](#getting-a-certificate-without-a-mac) below.                                                              |
+| `IOS_CERTIFICATE_PASSWORD`           | The password you choose while running `onebuild ios-cert package`.                                                                                  |
+| `IOS_PROVISIONING_PROFILE_BASE64`    | Download the matching `.mobileprovision` from **https://developer.apple.com/account/resources/profiles/list**, then run `onebuild ios-cert encode`. |
+| `KEYCHAIN_PASSWORD`                  | Any password you make up — it only protects a temporary keychain created during the CI run, and is never used anywhere else.                       |
 
 Once the secrets are in place, go back to the OneBuild prompt and choose
-**"I've added them, check again."** OneBuild will re-check and continue.
-You can also choose to skip the signed iOS target and continue with the
-rest of your selected outputs, or cancel entirely.
+**"I've added them, check again."** You can also skip the signed iOS
+target and continue with your other selected outputs, or cancel entirely.
 
-> The unsigned iOS target doesn't need any of this — it needs no Apple
-> account at all, but the resulting `.ipa` **cannot be installed on a
-> device as-is**. It needs to be re-signed afterwards with a tool like
-> AltStore, Sideloadly, or TrollStore — this is a limitation of unsigned
-> iOS builds in general, not something OneBuild can work around.
+> The unsigned iOS target needs no Apple account at all, but the
+> resulting `.ipa` **cannot be installed on a device as-is**. It needs to
+> be re-signed afterwards with a tool like AltStore, Sideloadly, or
+> TrollStore — this is a limitation of unsigned iOS builds in general,
+> not something OneBuild can work around.
 
 ### Getting a certificate without a Mac
 
 Getting an Apple *distribution certificate* normally means opening
 Keychain Access on a Mac to generate a Certificate Signing Request (CSR).
 That's not actually an Apple requirement — it's just what Keychain Access
-happens to automate. A CSR is a standard, well-defined file format (PKCS#10),
-and OneBuild can generate one itself, on any OS:
+automates. A CSR is a standard file format (PKCS#10), and OneBuild
+generates one itself, on any OS:
 
-```bash
+```powershell
 onebuild ios-cert csr
 ```
 
@@ -275,27 +385,27 @@ Next:
 
 Then package it:
 
-```bash
+```powershell
 onebuild ios-cert package
 ```
 
 Give it the path to the downloaded `.cer` file and the private key from
-the first step, pick a password, and OneBuild builds the `.p12` file,
-base64-encodes it, and saves both — ready to paste as
-`IOS_CERTIFICATE_BASE64` and `IOS_CERTIFICATE_PASSWORD`.
+step 1, pick a password, and OneBuild builds the `.p12` file, base64-encodes
+it, and saves both — ready to paste as `IOS_CERTIFICATE_BASE64` and
+`IOS_CERTIFICATE_PASSWORD`.
 
-This step shells out to `openssl` (it's preinstalled on macOS and Linux;
-on Windows it's included with Git for Windows or WSL). If `openssl` isn't
-found, OneBuild prints the exact two commands to run yourself instead —
-nothing about this requires a Mac.
+This step shells out to `openssl`. On Windows it's included with
+[Git for Windows](https://gitforwindows.org/) or WSL; on macOS/Linux it's
+preinstalled. If `openssl` isn't found, OneBuild prints the exact two
+commands to run yourself instead — nothing about this requires a Mac.
 
 You'll still need a **provisioning profile** tied to that certificate and
 your app's bundle ID — download it from
 **https://developer.apple.com/account/resources/profiles/list** (also
 possible from a browser on any OS), then:
 
-```bash
-onebuild ios-cert encode path/to/profile.mobileprovision
+```powershell
+onebuild ios-cert encode path\to\profile.mobileprovision
 ```
 
 to get the base64 value for `IOS_PROVISIONING_PROFILE_BASE64`.
@@ -307,24 +417,24 @@ the resulting GitHub Actions run automatically and waits for it, showing a
 live status and elapsed time:
 
 ```
-  ✔ Workflow started: https://github.com/you/your-repo/actions/runs/123456
-  ⠙ Building on GitHub Actions... status: in_progress (3m12s elapsed)
+✔ Workflow started: https://github.com/you/your-repo/actions/runs/123456
+⠙ Building on GitHub Actions... status: in_progress (3m12s elapsed)
 ```
 
 Multi-platform builds can take anywhere from a few minutes (Android only)
 to 20–30 minutes (several platforms including iOS/macOS/Windows/Linux
-together, since each hosted runner needs to set up its own toolchain from
-scratch — this is normal and expected, not a sign anything is stuck). You
-can safely leave the terminal running in the background.
+together — each hosted runner sets up its own toolchain from scratch,
+which is normal and not a sign anything is stuck). You can safely leave
+the terminal running in the background.
 
 ### 7. Getting your files
 
 When the run finishes, OneBuild lists each job with its result:
 
 ```
-  ✔ Android (.apk)  (https://github.com/you/your-repo/actions/runs/.../job/...)
-  ✔ Web  (...)
-  ✖ iOS - signed with your certificate (.ipa)  (...)
+✔ Android (.apk)   (https://github.com/you/your-repo/actions/runs/.../job/...)
+✔ Web              (...)
+✖ iOS - signed with your certificate (.ipa)  (...)
 ```
 
 Then it downloads every successful artifact into:
@@ -333,41 +443,42 @@ Then it downloads every successful artifact into:
 ~/OneBuild-output/<app-name>-<timestamp>/
 ```
 
-with one subfolder per artifact (e.g. `app-android-apk/`, `app-web/`),
+On Windows that's `%USERPROFILE%\OneBuild-output\<app-name>-<timestamp>\`,
+with one subfolder per artifact (`app-android-apk\`, `app-web\`, ...)
 containing the actual `.apk`, `.aab`, `.ipa`, or platform bundle GitHub
 Actions produced.
 
 ### 8. When a build fails
 
 For every failed job, OneBuild fetches that job's own log (not the whole
-run — so an Android failure doesn't drown out an iOS one) and shows you:
+run, so an Android failure doesn't drown out an iOS one) and shows you:
 
 - which job failed, and a direct link to it,
-- any structured **GitHub annotations** on that job (for example from
-  `flutter analyze` with a problem matcher, or `::error
-  file=...,line=...::message` workflow commands) — these come straight
-  from GitHub's own Checks API, so they're exact, not guesses,
+- any structured **GitHub annotations** on that job (e.g. from
+  `flutter analyze`, or `::error file=...,line=...::message` workflow
+  commands) — these come straight from GitHub's Checks API, so they're
+  exact, not guesses,
 - the last lines of that job's raw log, right in your terminal.
 
-OneBuild deliberately does **not** try to guess the cause or suggest a
-fix — build failures are too varied and context-dependent for a simple
-keyword match to get right reliably, and a wrong guess is worse than no
-guess. You get the real log; you (or a search engine, or the Flutter/
-Gradle/Xcode error message itself) are the best judge of what it means.
+OneBuild deliberately does **not** try to guess the cause or suggest a fix
+— build failures are too varied and context-dependent for a keyword match
+to get right reliably. You get the real log; you (or a search engine, or
+the Flutter/Gradle/Xcode error message itself) are the best judge of what
+it means.
 
 If you'd like a copy to keep or share, OneBuild can save a PDF with the
 failed jobs, their annotations, and log tails — saved straight to your
-**Desktop** for easy access:
+**Desktop**:
 
 ```
-  ✔ PDF saved to /Users/you/Desktop/onebuild-error-report-20260901-111652-038.pdf
+✔ PDF saved to C:\Users\you\Desktop\onebuild-error-report-20260901-111652-038.pdf
 ```
 
 ---
 
-## The `history` command
+## 📜 The `history` command
 
-```bash
+```powershell
 onebuild history
 ```
 
@@ -375,18 +486,18 @@ Shows every past build: app name, repository link, run link, date, and
 where each downloaded artifact ended up locally.
 
 ```
-  1. [✔] My App
-     Repo:   https://github.com/you/my-app
-     Run:    https://github.com/you/my-app/actions/runs/123456
-     Date:   2026-08-31 10:15
-     Artifacts:
-       - app-android-apk: /home/you/OneBuild-output/my-app-20260831-101512/app-android-apk
-       - app-web: /home/you/OneBuild-output/my-app-20260831-101512/app-web
+1. [✔] My App
+   Repo:   https://github.com/you/my-app
+   Run:    https://github.com/you/my-app/actions/runs/123456
+   Date:   2026-08-31 10:15
+   Artifacts:
+     - app-android-apk: C:\Users\you\OneBuild-output\my-app-20260831-101512\app-android-apk
+     - app-web: C:\Users\you\OneBuild-output\my-app-20260831-101512\app-web
 ```
 
-## The `doctor` command
+## 🩺 The `doctor` command
 
-```bash
+```powershell
 onebuild doctor
 ```
 
@@ -394,123 +505,157 @@ A quick environment check — useful before your first run or when
 something isn't working:
 
 ```
-  Info: OS/Arch: darwin/arm64
-  ✔ git is installed (will be used for faster uploads)
-  ✔ Local config directory is writable (~/.onebuild)
-  ✔ api.github.com is reachable
-  ✔ A GitHub session is saved
+Info: OS/Arch: windows/amd64
+✔ git is installed (will be used for faster uploads)
+✔ Local config directory is writable (%USERPROFILE%\.onebuild)
+✔ api.github.com is reachable
+✔ A GitHub session is saved
 ```
 
-## Keeping OneBuild up to date
+## 🔄 Keeping OneBuild up to date
 
 Every time you run a command like `onebuild build`, OneBuild does a quick
-(a few seconds, silently skipped if you're offline) check against this
-repository's latest release. If a newer version exists, you'll see:
+(a few seconds, silently skipped if offline) check against this
+repository's latest release. If a newer version exists:
 
 ```
-  ⚠ A newer version (v1.1.0) is available. Run 'onebuild update' to update.
+⚠ A newer version (v1.1.0) is available. Run 'onebuild update' to update.
 ```
 
 To update:
 
-```bash
+```powershell
 onebuild update
 ```
 
 This downloads the correct binary for your OS/architecture from the
 latest GitHub release and replaces the currently running one in place —
-no reinstalling, no re-downloading manually.
+no reinstalling, no manual re-downloading.
 
-## All commands
+---
+
+## 🧾 All commands
 
 ```
-onebuild build            Start the interactive build wizard
-onebuild history           Show past builds
-onebuild auth login        Save a GitHub token for future runs
-onebuild auth logout        Remove the saved GitHub token
-onebuild logout               Shortcut for 'onebuild auth logout'
-onebuild auth status         Show who is currently logged in
-onebuild ios-cert csr        Generate an Apple certificate request (no Mac needed)
-onebuild ios-cert package    Package a downloaded certificate into a .p12
-onebuild ios-cert encode     Base64-encode a file (e.g. a provisioning profile)
-onebuild doctor             Check your local environment
-onebuild update              Update OneBuild to the latest version
-onebuild version            Print the version number
-onebuild help                Show this list
+onebuild build              Start the interactive build wizard
+onebuild history             Show past builds
+onebuild auth login           One-time: save a GitHub token for future runs
+onebuild auth logout           Remove the saved GitHub token
+onebuild logout                   Shortcut for 'onebuild auth logout'
+onebuild auth status             Show who is currently logged in
+onebuild ios-cert csr           Generate an Apple certificate request (no Mac needed)
+onebuild ios-cert package       Package a downloaded certificate into a .p12
+onebuild ios-cert encode        Base64-encode a file (e.g. a provisioning profile)
+onebuild doctor                Check your local environment
+onebuild update                  Update OneBuild to the latest version
+onebuild version                Print the version number
+onebuild help                    Show this list
 ```
 
-## Where things are stored on your machine
+## 🗂️ Where things are stored on your machine
 
-| Path | Contents |
-|---|---|
-| `~/.onebuild/session.json` | Your GitHub login name and encrypted token |
-| `~/.onebuild/local.key` | The local encryption key used for the token above |
-| `~/.onebuild/history.json` | Your build history |
-| `~/OneBuild-output/ios-cert/` | Private key, CSR, certificate and provisioning profile files from `onebuild ios-cert` |
-| `~/OneBuild-output/` | Downloaded build artifacts |
-| `~/Desktop/` | PDF failure reports, when you ask for one |
+| Path                          | Contents                                                                               |
+| ------------------------------ | ---------------------------------------------------------------------------------------- |
+| `~/.onebuild/session.json`     | Your GitHub login name and encrypted token                                              |
+| `~/.onebuild/local.key`        | The local encryption key used for the token above                                       |
+| `~/.onebuild/history.json`     | Your build history                                                                       |
+| `~/OneBuild-output/ios-cert/`  | Private key, CSR, certificate and provisioning profile files from `onebuild ios-cert`   |
+| `~/OneBuild-output/`           | Downloaded build artifacts                                                              |
+| `~/Desktop/`                   | PDF failure reports, when you ask for one                                               |
+
+On Windows, `~` maps to `%USERPROFILE%` (usually `C:\Users\<you>`).
 
 Nothing here is ever sent anywhere except direct HTTPS calls to
 `api.github.com` (and, only during `onebuild update`, to download a new
 binary from this repository's GitHub Releases).
 
-> **A note on the local token storage**: the saved GitHub token is
-> encrypted at rest with a locally generated key stored right next to it
+> **A note on local token storage**: the saved GitHub token is encrypted
+> at rest with a locally generated key stored right next to it
 > (`~/.onebuild/local.key`). This protects the token from casual
 > inspection (e.g. opening the file in a text editor) but isn't a
 > substitute for full disk encryption — anyone with the same level of
-> access to your user account that could read the encrypted file could
-> also read the key next to it. Treat `~/.onebuild/` with the same care
-> you'd give any other credential on your machine.
+> access to your user account could read the key too. Treat
+> `~/.onebuild/` with the same care you'd give any other credential on
+> your machine.
 
-## FAQ / Troubleshooting
+---
 
-**Do I need a paid GitHub plan?**
+## ❓ FAQ / Troubleshooting
+
+<details>
+<summary><b>Do I need a paid GitHub plan?</b></summary>
+<br>
 No. Public repositories get unlimited free Actions minutes; private
 repositories on the free plan get a monthly quota (2,000 minutes/month as
-of this writing) which is generally plenty for personal projects. Building
-many platforms at once, especially macOS/iOS jobs, uses minutes faster
-than Android/Web alone.
+of this writing), which is generally plenty for personal projects.
+Building many platforms at once, especially macOS/iOS jobs, uses minutes
+faster than Android/Web alone.
+</details>
 
-**Why did my first build take 13 minutes for just an Android APK?**
+<details>
+<summary><b>Why did my first build take 13 minutes for just an Android APK?</b></summary>
+<br>
 That's normal, and even a bit on the fast side. GitHub's hosted runners
 start from a clean machine every time — installing the Flutter SDK,
 downloading the Gradle wrapper, the Android SDK components, and your
 project's dependencies all happen from scratch on that first run. Later
-builds of the same project are usually a bit faster since pub packages get
-cached, though Gradle itself isn't cached between separate runs yet.
+builds of the same project are usually a bit faster since pub packages
+get cached, though Gradle itself isn't cached between separate runs yet.
+</details>
 
-**Can I use this for a company/organization repository?**
+<details>
+<summary><b>Can I use this for a company/organization repository?</b></summary>
+<br>
 Yes — when asked for the repository, choose "existing GitHub repository"
 and point OneBuild at it, as long as your token has access to it.
+</details>
 
-**Where does the actual Flutter/Xcode/Gradle version come from?**
-From whatever `subosito/flutter-action` installs on the GitHub-hosted
-runner at the time of the build (`stable` channel by default) — the exact
-same tool most Flutter CI pipelines use.
+<details>
+<summary><b>Where does the actual Flutter/Xcode/Gradle version come from?</b></summary>
+<br>
+From whatever <code>subosito/flutter-action</code> installs on the
+GitHub-hosted runner at build time (<code>stable</code> channel by
+default) — the same tool most Flutter CI pipelines use.
+</details>
 
-**Can I edit the generated workflow file afterwards?**
-Yes, it's a normal file at `.github/workflows/onebuild.yml` in your repo.
-Re-running `onebuild build` against the same project will overwrite it
-with a freshly generated version based on your latest answers, so keep
-that in mind if you've hand-edited it.
+<details>
+<summary><b>Can I edit the generated workflow file afterwards?</b></summary>
+<br>
+Yes, it's a normal file at <code>.github/workflows/onebuild.yml</code> in
+your repo. Re-running <code>onebuild build</code> against the same
+project overwrites it with a freshly generated version based on your
+latest answers, so keep that in mind if you've hand-edited it.
+</details>
 
-**My push/upload failed with a permissions error.**
+<details>
+<summary><b>My push/upload failed with a permissions error.</b></summary>
+<br>
 Your token has probably expired or doesn't have the right scopes. Run
-`onebuild logout` then `onebuild auth login` again with a fresh token that
-has `repo` and `workflow` scopes.
+<code>onebuild logout</code> then <code>onebuild auth login</code> again
+with a fresh token that has <code>repo</code> and <code>workflow</code>
+scopes.
+</details>
 
-## Extending to other frameworks
+---
+
+## 🧩 Extending to other frameworks
 
 Version 1.0.0 focuses entirely on Flutter, but the design keeps that
 assumption isolated: all of the target definitions and the GitHub Actions
 YAML generation live in `internal/workflow/`, separate from the
-GitHub/upload/history/UI code. Adding support for another
-framework (React Native, plain native Android/iOS, etc.) means adding a
-new set of targets there, not touching the rest of the tool.
+GitHub/upload/history/UI code. Adding support for another framework
+(React Native, plain native Android/iOS, etc.) means adding a new set of
+targets there, not touching the rest of the tool.
 
-## License
+---
+
+## 📄 License
 
 MIT — see [LICENSE](LICENSE).
 
-Made by **A.M.Ghaderi**.
+<div align="center">
+
+Made with ⚡ by **[A.M.Ghaderi](https://github.com/ghaderi0x)**
+Issues & PRs welcome: [github.com/ghaderi0x/onebuild](https://github.com/ghaderi0x/onebuild)
+
+</div>
