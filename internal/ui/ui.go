@@ -55,8 +55,8 @@ func Banner() {
 		return
 	}
 	fmt.Println(paint(colorCyan, "┌────────────────────────────────────────────────────┐"))
-	fmt.Println(paint(colorCyan, "│") + paint(colorBold+colorPurple, "   OneBuild") + paint(colorGray, "  ·  Flutter cross-platform CI builder") + paint(colorCyan, "  │"))
-	fmt.Println(paint(colorCyan, "│") + paint(colorGray, "   by A.M.Ghaderi  ·  github.com/ghaderi0x           ") + paint(colorCyan, "│"))
+	fmt.Println(paint(colorCyan, "│") + paint(colorBold+colorPurple, "   OneBuild") + paint(colorGray, "  ·  Flutter cross-platform CI builder") + paint(colorCyan, "   │"))
+	fmt.Println(paint(colorCyan, "│") + paint(colorGray, "   by A.M.Ghaderi  ·  github.com/ghaderi0x          ") + paint(colorCyan, "│"))
 	fmt.Println(paint(colorCyan, "└────────────────────────────────────────────────────┘"))
 }
 
