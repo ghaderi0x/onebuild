@@ -28,9 +28,7 @@
 
 <div align="center">
 
-<!-- 🎬 این خط را با گیف دموی خودتان جایگزین کنید -->
-<!-- نمونه: ![دموی OneBuild](docs/demo.gif) -->
-<img src="docs/demo.gif" alt="دموی OneBuild — از پروژه‌ی فلاتر تا فایل APK و IPA طی چند پرسش ساده" width="720">
+<img src="docs/screen.png" alt="دموی OneBuild — از پروژه‌ی فلاتر تا فایل APK و IPA طی چند پرسش ساده" width="720">
 
 </div>
 
