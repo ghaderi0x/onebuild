@@ -23,7 +23,6 @@ questions; OneBuild does the rest.
 
 <div align="center">
 
-<!-- Example: ![OneBuild demo](docs/demo.gif) -->
 <img src="docs/screen.png" alt="OneBuild demo — from flutter project to APK/IPA in a few prompts" width="720">
 
 </div>
