@@ -63,7 +63,7 @@ func flutterVersionOrDefault(v string) string {
 }
 
 func setupSteps(b *strings.Builder, flutterVersion string) {
-	b.WriteString("      - uses: actions/checkout@v4\n")
+	b.WriteString("      - uses: actions/checkout@v5\n")
 	b.WriteString("      - uses: subosito/flutter-action@v2\n")
 	b.WriteString("        with:\n")
 	if flutterVersion == "stable" || flutterVersion == "beta" || flutterVersion == "master" {
@@ -75,8 +75,43 @@ func setupSteps(b *strings.Builder, flutterVersion string) {
 	b.WriteString("      - run: flutter pub get\n")
 }
 
+// MinGradleVersion is the lowest Gradle wrapper version the generated
+// Android jobs will accept. Recent Flutter releases refuse to build with
+// anything older than 8.14.0, so older wrappers are bumped before the build.
+const MinGradleVersion = "8.14.3"
+
+const gradleBumpScript = `set -e
+f=android/gradle/wrapper/gradle-wrapper.properties
+min=` + MinGradleVersion + `
+if [ ! -f "$f" ]; then
+  echo "No Gradle wrapper properties found, skipping."
+  exit 0
+fi
+cur=$(sed -nE 's#.*gradle-([0-9]+\.[0-9]+(\.[0-9]+)?)-(bin|all)\.zip.*#\1#p' "$f" | head -1)
+if [ -z "$cur" ]; then
+  echo "Could not detect Gradle version, skipping."
+  exit 0
+fi
+lowest=$(printf '%s\n%s\n' "$min" "$cur" | sort -V | head -1)
+if [ "$lowest" != "$min" ]; then
+  echo "Gradle $cur is older than $min - upgrading wrapper."
+  sed -i -E "s#gradle-[0-9.]+-(bin|all)\.zip#gradle-$min-\1.zip#" "$f"
+else
+  echo "Gradle $cur is OK (>= $min)."
+fi
+`
+
+// androidPrepSteps makes sure the Gradle wrapper satisfies Flutter's minimum.
+func androidPrepSteps(b *strings.Builder) {
+	b.WriteString("      - name: Ensure Gradle wrapper meets Flutter minimum\n")
+	b.WriteString("        run: |\n")
+	for _, line := range strings.Split(strings.TrimRight(gradleBumpScript, "\n"), "\n") {
+		b.WriteString("          " + line + "\n")
+	}
+}
+
 func uploadStep(b *strings.Builder, name, path string) {
-	b.WriteString("      - uses: actions/upload-artifact@v4\n")
+	b.WriteString("      - uses: actions/upload-artifact@v5\n")
 	b.WriteString("        if: always()\n")
 	b.WriteString(fmt.Sprintf("        with:\n          name: %s\n          path: %s\n          if-no-files-found: warn\n", name, path))
 }
@@ -111,6 +146,7 @@ func Generate(opts Options) string {
 	if targets[TargetAndroidAPK] {
 		writeJobHeader(&b, "android_apk", TargetLabels[TargetAndroidAPK], "ubuntu-latest")
 		setupSteps(&b, version)
+		androidPrepSteps(&b)
 		b.WriteString("      - run: flutter build apk --release\n")
 		uploadStep(&b, "app-android-apk", "build/app/outputs/flutter-apk/*.apk")
 		b.WriteString("\n")
@@ -119,6 +155,7 @@ func Generate(opts Options) string {
 	if targets[TargetAndroidBundle] {
 		writeJobHeader(&b, "android_appbundle", TargetLabels[TargetAndroidBundle], "ubuntu-latest")
 		setupSteps(&b, version)
+		androidPrepSteps(&b)
 		b.WriteString("      - run: flutter build appbundle --release\n")
 		uploadStep(&b, "app-android-appbundle", "build/app/outputs/bundle/release/*.aab")
 		b.WriteString("\n")
